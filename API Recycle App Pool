@@ -1,0 +1,79 @@
+
+cls
+
+try
+{
+
+
+#Invoke-Item "C:\Program Files\Thycotic Software Ltd\Secret Server Protocol Handler\Putty.exe"
+
+    $api = "https://vault/api/v1"
+    $tokenRoute = "https://vault/oauth2/token";
+
+    $creds = @{
+        username = "solar\apirunner"
+        password = "passwordhere"
+        grant_type = "password"
+    }        
+
+    $token = ""
+    $response = Invoke-RestMethod $tokenRoute -Method Post -Body $creds
+    $token = $response.access_token;
+
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $token")
+
+   #build filter string
+    $filters = "?filter.secretId=1091&filter.searchText=secretserver&filter.templateId=2" 
+    $result = Invoke-RestMethod "$api/secret-dependencies/$filters" -Headers $headers
+    foreach($secret1 in $result.records)
+    { 
+        
+       $depno =$secret1.id 
+       write-host $depno
+  
+    }
+    
+   
+      $secretArgs  = "[""$depNo""]"
+  
+
+     write-host $secretArgs
+       
+    $result = Invoke-RestMethod "$api/secret-dependencies/run"  -Headers $headers  -Method post -Body $secretArgs -ContentType application/json
+
+
+
+
+
+    write-host $result
+     $res1=$result.ToString()
+     write-host $res1
+
+         foreach($secret in $result.records)
+    {
+       Write-Host $secret.id" - "$secret.serviceName $secret
+    }
+    Write-Host "------------------------------"
+
+
+
+  
+}
+catch [System.Net.WebException]
+{
+    Write-Host "----- Exception -----"
+    Write-Host  $_.Exception
+    Write-Host  $_.Exception.Response.StatusCode
+    Write-Host  $_.Exception.Response.StatusDescription
+    $result = $_.Exception.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($result)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd() | ConvertFrom-Json
+    Write-Host  $responseBody.errorCode " - " $responseBody.message " - " $responseBody.messageDetail
+    foreach($modelState in $responseBody.modelState)
+    {
+        $modelState
+    }
+}
