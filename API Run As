@@ -1,0 +1,77 @@
+cls
+
+try
+{
+
+
+#Invoke-Item "C:\Program Files\Thycotic Software Ltd\Secret Server Protocol Handler\Putty.exe"
+
+    $api = "https://vault/api/v1"
+    $tokenRoute = "https://vault/oauth2/token";
+
+    $user1 = read-host "Username"
+    $pass1 = Read-Host "Password?" -AsSecureString
+    $pass2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pass1))
+
+    $creds = @{
+         
+        username = $user1
+        password=$pass2
+        grant_type = "password"
+    }        
+   # write-host password
+    $token = ""
+    $response = Invoke-RestMethod $tokenRoute -Method Post -Body $creds
+    $token = $response.access_token;
+
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $token")
+
+  # write-host $token
+  
+    $result = Invoke-RestMethod "$api/secrets/2/fields/password" -Headers $headers  -Method get
+     $res1=$result.ToString()
+    # write-host $res1
+
+
+  
+}
+catch [System.Net.WebException]
+{
+    Write-Host "----- Exception -----"
+    Write-Host  $_.Exception
+    Write-Host  $_.Exception.Response.StatusCode
+    Write-Host  $_.Exception.Response.StatusDescription
+    $result = $_.Exception.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($result)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd() | ConvertFrom-Json
+    Write-Host  $responseBody.errorCode " - " $responseBody.message
+    foreach($modelState in $responseBody.modelState)
+    {
+        $modelState
+    }
+}
+
+
+
+$susername='solar\tadmin1'
+$command = 'mmc.exe'
+
+
+#write-host "Supplied Username  = " $susername
+#write-host "Password  = " $res1
+#write-host "Command   = " $command
+
+$credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($susername,(ConvertTo-SecureString -String $res1 -AsPlainText -Force)) 
+
+
+
+#Start-Process $command -Credential ($credentials) -Verb RunAs 
+
+# variables
+$mmc = "$($env:SystemDrive)\Windows\System32\mmc.exe"
+$msc = "$($env:SystemDrive)\Windows\System32\compmgmt.msc"
+# call MSC
+Start-Process powershell.exe -Credential $credentials -ArgumentList "Start-Process -FilePath $mmc -ArgumentList $msc -Verb runAs"
