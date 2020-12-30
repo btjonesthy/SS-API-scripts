@@ -1,18 +1,18 @@
 
+
 cls
 
 try
 {
 
 
-#Invoke-Item "C:\Program Files\Thycotic Software Ltd\Secret Server Protocol Handler\Putty.exe"
 
-    $api = "https://vault/api/v1"
-    $tokenRoute = "https://vault/oauth2/token";
+    $api = "https://Mercury/SecretServer/api/v1"
+    $tokenRoute = "https://Mercury/SecretServer/oauth2/token";
 
     $creds = @{
         username = "solar\apirunner"
-        password = "passwordhere"
+        password = "PassWordGoesHere"
         grant_type = "password"
     }        
 
@@ -24,7 +24,7 @@ try
     $headers.Add("Authorization", "Bearer $token")
 
    #build filter string
-    $filters = "?filter.secretId=1091&filter.searchText=secretserver&filter.templateId=2" 
+    $filters = "?filter.secretId=1&filter.searchText=secretserver&filter.templateId=2" 
     $result = Invoke-RestMethod "$api/secret-dependencies/$filters" -Headers $headers
     foreach($secret1 in $result.records)
     { 
