@@ -1,20 +1,20 @@
 
-
 cls
 
 try
 {
 
 
-
+    $secretid = 1
     $api = "https://Mercury/SecretServer/api/v1"
     $tokenRoute = "https://Mercury/SecretServer/oauth2/token";
 
     $creds = @{
         username = "solar\apirunner"
-        password = "PassWordGoesHere"
+        password = "Hi5uWxx1rJMk"
         grant_type = "password"
     }        
+
 
     $token = ""
     $response = Invoke-RestMethod $tokenRoute -Method Post -Body $creds
@@ -24,7 +24,7 @@ try
     $headers.Add("Authorization", "Bearer $token")
 
    #build filter string
-    $filters = "?filter.secretId=1&filter.searchText=secretserver&filter.templateId=2" 
+    $filters = "?filter.secretId=$secretid&filter.searchText=secretserver&filter.templateId=2" 
     $result = Invoke-RestMethod "$api/secret-dependencies/$filters" -Headers $headers
     foreach($secret1 in $result.records)
     { 
