@@ -7,8 +7,8 @@ try
     $tokenRoute = "https://vault/oauth2/token";
 
     $creds = @{
-        username = "solar\apirunner"
-        password = "passwordhere"
+        username = "APIUSERNAME"
+        password = "APIPASSWORD"
         grant_type = "password"
     }        
 
