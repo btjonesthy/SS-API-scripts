@@ -20,7 +20,7 @@ try
     $searchString="12"
     $filters = "?filter.SearchTypes=SecretItems&filter.secretIds=$searchString" 
     $result = Invoke-RestMethod "$api/recorded-sessions$filters" -Headers $headers 
-    $sess=$result.records[1].launcherSessionGuid
+    $sess=$result.records[$results.records.count].launcherSessionGuid
 
     $output = "$PSScriptRoot\$sess"       
     $result1 = Invoke-RestMethod "$api/recorded-sessions/$sess/session-recordings" -Headers $headers -OutFile $output
