@@ -10,8 +10,8 @@ try
     $tokenRoute = "https://Mercury/SecretServer/oauth2/token";
 
     $creds = @{
-        username = "solar\apirunner"
-        password = "Hi5uWxx1rJMk"
+        username = "APIUSER"
+        password = "APIPASSWORD"
         grant_type = "password"
     }        
 
