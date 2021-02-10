@@ -1,0 +1,59 @@
+cls
+try
+{
+    $api = "https://mercury/SecretServer/api/v1"
+    $tokenRoute = "https://mercury/SecretServer/oauth2/token";
+
+    $user1 = read-host "Username"
+    $pass1 = Read-Host "Password?" -AsSecureString
+    $pass2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pass1))
+
+    $creds = @{
+         
+        username = $user1
+        password=$pass2
+        grant_type = "password"
+ }
+    $token = ""
+    $response = Invoke-RestMethod $tokenRoute -Method Post -Body $creds
+    $token = $response.access_token;
+
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Authorization", "Bearer $token")
+
+    $array = @("6", "15")
+    $array
+
+ for ($i=0; $i -lt $array.length; $i++) {
+	$loopy=$array[$i]
+  
+    $pw1 = Invoke-RestMethod "$api/secrets/$loopy/fields/password" -Headers $headers  -Method get
+    $un1 = Invoke-RestMethod "$api/secrets/$loopy/fields/username" -Headers $headers  -Method get
+    $mc1 = Invoke-RestMethod "$api/secrets/$loopy/fields/machine" -Headers $headers  -Method get
+
+   
+
+Start-Process "C:\Program Files\VanDyke Software\SecureCRT\securecrt.exe" -ArgumentList "/t /ssh2 /PASSWORD $pw1 /P 22 /L $un1 $mc1 "
+
+Start-Sleep -s 5
+
+}
+   
+}
+catch [System.Net.WebException]
+{
+    Write-Host "----- Exception -----"
+    Write-Host  $_.Exception
+    Write-Host  $_.Exception.Response.StatusCode
+    Write-Host  $_.Exception.Response.StatusDescription
+    $result = $_.Exception.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($result)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd() | ConvertFrom-Json
+    Write-Host  $responseBody.errorCode " - " $responseBody.message
+    foreach($modelState in $responseBody.modelState)
+    {
+        $modelState
+    }
+}
