@@ -1,17 +1,17 @@
 cls
-
 try
 {
-
-
-
-
     $api = "https://mercury/SecretServer/api/v1"
     $tokenRoute = "https://mercury/SecretServer/oauth2/token";
 
+    $user1 = read-host "Username"
+    $pass1 = Read-Host "Password?" -AsSecureString
+    $pass2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pass1))
+
     $creds = @{
-        username = "APIUSERNAME"
-        password = "APIPASSWORD"
+         
+        username = $user1
+        password=$pass2
         grant_type = "password"
  }
     $token = ""
@@ -21,23 +21,21 @@ try
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $headers.Add("Authorization", "Bearer $token")
 
-    
+    $array = @("6", "15")
+    $array
+
+ for ($i=0; $i -lt $array.length; $i++) {
+	$loopy=$array[$i]
   
-    $pw1 = Invoke-RestMethod "$api/secrets/6/fields/password" -Headers $headers  -Method get
-    $un1 = Invoke-RestMethod "$api/secrets/6/fields/username" -Headers $headers  -Method get
-    $mc1 = Invoke-RestMethod "$api/secrets/6/fields/machine" -Headers $headers  -Method get
+    $pw1 = Invoke-RestMethod "$api/secrets/$loopy/fields/password" -Headers $headers  -Method get
+    $un1 = Invoke-RestMethod "$api/secrets/$loopy/fields/username" -Headers $headers  -Method get
+    $mc1 = Invoke-RestMethod "$api/secrets/$loopy/fields/machine" -Headers $headers  -Method get
 
-    
-    $pw2 = Invoke-RestMethod "$api/secrets/15/fields/password" -Headers $headers  -Method get
-    $un2 = Invoke-RestMethod "$api/secrets/15/fields/username" -Headers $headers  -Method get
-    $mc2 = Invoke-RestMethod "$api/secrets/15/fields/machine" -Headers $headers  -Method get
- 
-    
-    
-Start-Process "C:\Program Files (x86)\Mobatek\MobaXterm\MobaXterm.exe" -ArgumentList "-newtab ""sshpass -p '$pw2' ssh $un2@$mc2"" "
-Start-Sleep -s 10
+   
 Start-Process "C:\Program Files (x86)\Mobatek\MobaXterm\MobaXterm.exe" -ArgumentList "-newtab ""sshpass -p '$pw1' ssh $un1@$mc1"" "
+Start-Sleep -s 5
 
+}
    
 }
 catch [System.Net.WebException]
