@@ -1,0 +1,18 @@
+cls
+# Make sure Web Services is enabled in Secret Server Admin > Configuration
+cls
+# Set Secret number here:
+$secret = "7265"
+# Can use the Search API from the below URL
+# https://thycotic.force.com/support/s/article/REST-API-PowerShell-Scripts-Getting-Started
+# 3 - Searching Secrets
+#
+# Set the Secret Server name here:
+$server = "vault.solar.local"
+# 
+$api = "https://$server/secretserver/winauthwebservices/api/v1"
+$machine = Invoke-RestMethod -UseDefaultCredentials "$api/secrets/$secret/fields/machine" -Headers $headers  -Method get
+$user = Invoke-RestMethod -UseDefaultCredentials "$api/secrets/$secret/fields/username" -Headers $headers  -Method get
+$password = Invoke-RestMethod -UseDefaultCredentials "$api/secrets/$secret/fields/password" -Headers $headers  -Method get
+Start-Process "psexec.exe $machine -u $user -p $password"
+#thanks @scoot
